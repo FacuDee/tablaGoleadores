@@ -46,9 +46,10 @@ button {
   cursor: pointer;
   transition: background 0.3s ease;
 }
-button:hover {
+
+/* button:hover {
   background: #218838;
-}
+} */
 
 .acciones {
   display: flex;
@@ -78,6 +79,14 @@ button:hover {
 
 .restar:hover {
   background-color: #c82333;
+}
+
+.sumar2 {
+    background-color: #7e8e9e5e;
+}
+
+.restar2 {
+    background-color: #7e8e9e5e;
 }
 
 @media (max-width: 480px) {

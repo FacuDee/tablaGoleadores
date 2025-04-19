@@ -39,37 +39,36 @@ async function cargarTabla() {
 }
 
 async function modificarGol(jugador, golesActuales, cambio) {
-    // Obtener la celda de goles correspondiente
     const td = document.getElementById(`goles-${jugador}`);
-    
-    // Mostrar el spinner solo en la celda de goles correspondiente
     const spinner = document.createElement('div');
     spinner.classList.add('spinner');
-    td.innerHTML = '';  // Limpiar el contenido de la celda
-    td.appendChild(spinner);  // Agregar el spinner a la celda de goles
+    td.innerHTML = '';
+    td.appendChild(spinner);
 
-    const nuevosGoles = Math.max(0, golesActuales + cambio);  // Evita números negativos
+    const nuevosGoles = Math.max(0, golesActuales + cambio);
+
     try {
       const response = await fetch(apiURL, {
         method: 'POST',
-        body: JSON.stringify({ jugador: jugador, goles: nuevosGoles })
+        body: JSON.stringify({
+          jugador: jugador,
+          goles: nuevosGoles,
+          clave: SECRET_KEY   // ⚠️ enviar la clave
+        })
       });
 
       if (response.ok) {
-        // Actualizar la celda con el nuevo valor de goles
-        td.innerHTML = nuevosGoles;  // Reemplazamos el spinner con el nuevo valor
+        td.innerHTML = nuevosGoles;
         mostrarAnimacion(jugador);
-
-        // Recargar y ordenar la tabla
-        cargarTabla();  // Volver a cargar la tabla y ordenar los datos
+        cargarTabla();
       } else {
         alert("Error al actualizar. Intentalo de nuevo.");
-        td.innerHTML = golesActuales;  // Revertir al valor anterior si hay error
+        td.innerHTML = golesActuales;
       }
     } catch (error) {
       console.error('Error en la actualización:', error);
       alert("Error de conexión. Intentalo de nuevo.");
-      td.innerHTML = golesActuales;  // Revertir al valor anterior si hay error
+      td.innerHTML = golesActuales;
     }
 }
 
