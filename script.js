@@ -1,6 +1,6 @@
 const apiURL =
   "https://script.google.com/macros/s/AKfycbw0W53EORtBfP60NbnIn4DtAcjolnkvB9rFIV8QoxouRwJ2XSpO9ztEn7yozhLtqnDo/exec";
-const SECRET_KEY = "vivachicho2025";
+const SECRET_KEY = "chicho2025";
 
 async function cargarTabla() {
   try {
@@ -19,14 +19,14 @@ async function cargarTabla() {
 
     data.forEach(([jugador, goles]) => {
       html += `
-          <tr>
-            <td>${jugador}</td>
-            <td>${goles}</td>
-            <td>
-              <button onclick="modificarGol('${jugador}', ${goles}, 1)">+1</button>
-              <button onclick="modificarGol('${jugador}', ${goles}, -1)">-1</button>
-            </td>
-          </tr>`;
+              <tr>
+                <td>${jugador}</td>
+                <td id="goles-${jugador}">${goles}</td>
+                <td class="acciones">
+                  <button class="sumar" onclick="modificarGol('${jugador}', ${goles}, 1)">+1</button>
+                  <button class="restar" onclick="modificarGol('${jugador}', ${goles}, -1)">-1</button>
+                </td>
+              </tr>`;
     });
 
     html += `</table>`;
@@ -39,28 +39,38 @@ async function cargarTabla() {
 }
 
 async function modificarGol(jugador, golesActuales, cambio) {
-  const nuevosGoles = Math.max(0, golesActuales + cambio);
+    // Obtener la celda de goles correspondiente
+    const td = document.getElementById(`goles-${jugador}`);
+    
+    // Mostrar el spinner solo en la celda de goles correspondiente
+    const spinner = document.createElement('div');
+    spinner.classList.add('spinner');
+    td.innerHTML = '';  // Limpiar el contenido de la celda
+    td.appendChild(spinner);  // Agregar el spinner a la celda de goles
 
-  try {
-    const response = await fetch(apiURL, {
-      method: "POST",
-      body: JSON.stringify({
-        jugador: jugador,
-        goles: nuevosGoles,
-        clave: SECRET_KEY,
-      }),
-    });
+    const nuevosGoles = Math.max(0, golesActuales + cambio);  // Evita números negativos
+    try {
+      const response = await fetch(apiURL, {
+        method: 'POST',
+        body: JSON.stringify({ jugador: jugador, goles: nuevosGoles })
+      });
 
-    if (response.ok) {
-      mostrarAnimacion(jugador);
-      cargarTabla(); // Refresca la tabla y la ordena
-    } else {
-      alert("No autorizado o error al actualizar.");
+      if (response.ok) {
+        // Actualizar la celda con el nuevo valor de goles
+        td.innerHTML = nuevosGoles;  // Reemplazamos el spinner con el nuevo valor
+        mostrarAnimacion(jugador);
+
+        // Recargar y ordenar la tabla
+        cargarTabla();  // Volver a cargar la tabla y ordenar los datos
+      } else {
+        alert("Error al actualizar. Intentalo de nuevo.");
+        td.innerHTML = golesActuales;  // Revertir al valor anterior si hay error
+      }
+    } catch (error) {
+      console.error('Error en la actualización:', error);
+      alert("Error de conexión. Intentalo de nuevo.");
+      td.innerHTML = golesActuales;  // Revertir al valor anterior si hay error
     }
-  } catch (error) {
-    console.error("Error en la actualización:", error);
-    alert("Error de conexión. Intentalo de nuevo.");
-  }
 }
 
 function mostrarAnimacion(jugador) {
